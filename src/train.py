@@ -8,6 +8,9 @@ import mlflow
 import mlflow.sklearn
 from pipeline import load_and_preprocess_data, split_data, apply_smote 
 
+mlflow.set_tracking_uri("file:./mlruns")
+mlflow.set_experiment("credit-fraud-pipeline")
+
 X, y = load_and_preprocess_data('data/raw/creditcard.csv')
 X_train, X_test, y_train, y_test = split_data(X, y)
 X_train_smote, y_train_smote = apply_smote(X_train, y_train)
@@ -64,7 +67,7 @@ with mlflow.start_run(run_name="XGBoost"):
     mlflow.log_metric("recall", recall_score(y_test, y_pred_xgb))
     mlflow.log_metric("precision", precision_score(y_test, y_pred_xgb))
     mlflow.log_metric("f1_score", f1_score(y_test, y_pred_xgb))
-    mlflow.log_metric("auc", roc_auc_score(y_test, y_pred_xgb))
+    mlflow.log_metric("auc", roc_auc_score(y_test, y_pred_proba_xgb))
 
     print("Saving model to MLflow...")
     mlflow.sklearn.log_model(model_xgb, "xgboost_model")
@@ -84,7 +87,7 @@ with mlflow.start_run(run_name="XGBoost_Tuned"):
     }
 
     xgb = XGBClassifier(random_state=0, n_jobs=-1)
-    grid_search = GridSearchCV(estimator=xgb, param_grid=param_grid, cv=3, scoring='f1', verbose=1)
+    grid_search = GridSearchCV(estimator=xgb, param_grid=param_grid, cv=3, scoring='recall', verbose=1)
 
     print("Starting GridSearch...")
     grid_search.fit(X_train_smote, y_train_smote)
@@ -108,6 +111,10 @@ with mlflow.start_run(run_name="XGBoost_Tuned"):
 
     print("Saving model to MLflow...")
     mlflow.sklearn.log_model(best_model, "tuned_xgboost_model")
+
+    run_id = mlflow.active_run().info.run_id
+    model_uri = f"runs:/{run_id}/tuned_xgboost_model"
+    mlflow.register_model(model_uri=model_uri, name="fraud-detector-model")
 
     print("Model report of Experiment 3:")
     print(classification_report(y_test, y_pred_tuned))
