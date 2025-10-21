@@ -19,8 +19,7 @@ credit-fraud-pipeline/
 ├── mlruns/ (MLflow tracking data)  
 ├── models/ (saved model artifacts)  
 ├── notebooks/01_data_exploration.ipynb  
-├── src/  
-│   ├── __init__.py  
+├── src/   
 │   ├── api.py
 │   ├── pipeline.py (data processing)  
 │   └── train.py (training + MLflow logging)  
