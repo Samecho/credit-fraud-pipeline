@@ -2,7 +2,6 @@
 
 ## Overview
 A complete machine learning system for detecting fraudulent credit card transactions.  
-Focus: accuracy, reproducibility, and MLOps automation — from data ingestion to deployment prep.
 
 ## Tech Stack
 - Python 3.9+
@@ -48,7 +47,7 @@ Dataset: [Credit Card Fraud Detection (Kaggle)](https://www.kaggle.com/datasets/
 2. Preprocessing: scaling, stratified split, SMOTE  
 3. MLflow tracking for all runs  
 4. Models: RandomForest (baseline), XGBoost (default + tuned)  
-5. GridSearchCV tuned XGBoost for Recall priority  
+5. GridSearchCV tuned XGBoost for Recall priority, considering the risk detection context 
 6. Registered tuned model in MLflow Model Registry
 
 ## Results
