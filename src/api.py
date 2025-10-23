@@ -38,9 +38,9 @@ class TransactionFeatures(BaseModel):
 app = FastAPI(title="Credit Fraud Detection API")
 
 model_name = "fraud-detector-model"
-model_stage = "Production"
-model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}/{model_stage}")
-print(f"Successfully loaded model '{model_name}' version from stage '{model_stage}'.")
+model_alias = "production"
+model = mlflow.pyfunc.load_model(model_uri=f"models:/{model_name}@{model_alias}")
+print(f"Successfully loaded model '{model_name}' with alias '{model_alias}'.")
 
 @app.get("/")
 def read_root():
