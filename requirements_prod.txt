@@ -1,0 +1,11 @@
+fastapi==0.119.1
+imbalanced_learn==0.14.0
+mlflow==3.5.0
+mlflow_skinny==3.5.0
+mlflow_tracing==3.5.0
+pandas==2.3.3
+pydantic==2.12.3
+scikit_learn==1.7.2
+xgboost==3.1.1
+uvicorn
+gunicorn

@@ -22,7 +22,7 @@ credit-fraud-pipeline/
 │   ├── api.py
 │   ├── pipeline.py (data processing)  
 │   └── train.py (training + MLflow logging)  
-└── tests/ (future)
+└── tests/
 
 ## Setup
 1. Clone repo  
@@ -55,10 +55,10 @@ Dataset: [Credit Card Fraud Detection (Kaggle)](https://www.kaggle.com/datasets/
 |--------|---------|-------|
 | RandomForest | ~0.78 | Baseline |
 | XGBoost (default) | ~0.81 | Better |
-| XGBoost (tuned) | ~0.82 | Final |
+| XGBoost (tuned) | ~0.84 | Final |
 
 Best Params:  
-`{'colsample_bytree': 0.8, 'learning_rate': 0.1, 'max_depth': 8, 'n_estimators': 300, 'subsample': 1.0}`  
+`{'colsample_bytree': 0.8, 'learning_rate': 0.05, 'max_depth': 7, 'n_estimators': 300, 'subsample': 0.8}`  
 
 All experiments tracked in MLflow.
 
