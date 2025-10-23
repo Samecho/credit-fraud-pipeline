@@ -1,72 +1,42 @@
-import requests
-import json
+from fastapi.testclient import TestClient
+from src.api import app
 
-API_URL = "http://127.0.0.1:8000/predict"
+client = TestClient(app)
 
 VALID_DATA = {
-    "V1": -1.3598071336738, "V2": -0.0727811733098497, "V3": 2.53634673796914,
-    "V4": 1.37815522427443, "V5": -0.338320769942518, "V6": 0.462387777762292,
-    "V7": 0.239598554061257, "V8": 0.0986979012610507, "V9": 0.363786969411216,
-    "V10": 0.0907941719789316, "V11": -0.551599533262717, "V12": -0.617800855686459,
-    "V13": -0.991389847235408, "V14": -0.311169353699879, "V15": 1.46817697209427,
-    "V16": -0.470400525259478, "V17": 0.207971241929242, "V18": 0.0257905801985591,
-    "V19": 0.403992960255733, "V20": 0.251412098239705, "V21": -0.018306777944153,
-    "V22": 0.277837575558899, "V23": -0.110473910188767, "V24": 0.0669280749146731,
-    "V25": 0.128539358273528, "V26": -0.189114843888824, "V27": 0.133558376740387,
-    "V28": -0.0210530534538215, "scaled_amount": 0.244964024976451, "scaled_time": -1.9965825489394
+    "V1": -1.359, "V2": -0.072, "V3": 2.536, "V4": 1.378, "V5": -0.338,
+    "V6": 0.462, "V7": 0.239, "V8": 0.098, "V9": 0.363, "V10": 0.090,
+    "V11": -0.551, "V12": -0.617, "V13": -0.991, "V14": -0.311, "V15": 1.468,
+    "V16": -0.470, "V17": 0.207, "V18": 0.025, "V19": 0.403, "V20": 0.251,
+    "V21": -0.018, "V22": 0.277, "V23": -0.110, "V24": 0.066, "V25": 0.128,
+    "V26": -0.189, "V27": 0.133, "V28": -0.021,
+    "scaled_amount": 0.244, "scaled_time": -1.996
 }
-
-def test_predict_endpoint_with_invalid_data():
-    INVALID_DATA = {
-        "V1": -1.35, "V2": -0.07, "V3": 2.53, "V4": 1.37, "V5": -0.33,
-        "V6": 0.46, "V7": 0.23, "V8": 0.09, "V9": 0.36, # "V10" is missing!
-        "V11": -0.55, "V12": -0.61, "V13": -0.99, "V14": -0.31, "V15": 1.46,
-        "V16": -0.47, "V17": 0.20, "V18": 0.02, "V19": 0.40, "V20": 0.25,
-        "V21": -0.01, "V22": 0.27, "V23": 0.08, "V24": 0.00, "V25": 0.12,
-        "V26": -0.18, "V27": 0.13, "V28": -0.02,
-        "scaled_amount": -0.21, "scaled_time": -0.99
-    }
-
-
-    response = requests.post(API_URL, data=json.dumps(INVALID_DATA))
-
-
-    assert response.status_code == 422
-
-
-def test_predict_endpoint_with_valid_data():
-   
-    response = requests.post(API_URL, data=json.dumps(VALID_DATA))
-
-    assert response.status_code == 200
-
-    response_json = response.json()
-    assert "is_fraud" in response_json
-    
-    assert response_json["is_fraud"] == 0
-
 
 KNOWN_FRAUD_DATA = {
-    "V1": -2.3122265423263, "V2": 1.95199201064158, "V3": -1.60985073229769,
-    "V4": 3.9979055875468, "V5": -0.522187864667537, "V6": -1.42654531920595,
-    "V7": -2.53738730624538, "V8": 1.39165724824229, "V9": -2.77008927719433,
-    "V10": -2.77227214465916, "V11": 3.20203320708912, "V12": -2.8999073833312,
-    "V13": -0.595221881313364, "V14": -4.28925378243404, "V15": 0.389724120173822,
-    "V16": -1.1407471798009, "V17": -2.83005567450437, "V18": -0.0168224681808259,
-    "V19": 0.41695570503793, "V20": 0.126910559061474, "V21": 0.517232370861764,
-    "V22": -0.0350493686053012, "V23": -0.465211076182348, "V24": 0.320198198514163,
-    "V25": 0.0445191674731721, "V26": 0.177839798284401, "V27": 0.261145002567677,
-    "V28": -0.14327587293313, "scaled_amount": -0.353228913988353, "scaled_time": -1.02361327314543
+    "V1": -2.312, "V2": 1.951, "V3": -1.609, "V4": 3.997, "V5": -0.522,
+    "V6": -1.426, "V7": -2.537, "V8": 1.391, "V9": -2.770, "V10": -2.772,
+    "V11": 3.202, "V12": -2.899, "V13": -0.595, "V14": -4.289, "V15": 0.389,
+    "V16": -1.140, "V17": -2.830, "V18": -0.016, "V19": 0.416, "V20": 0.126,
+    "V21": 0.517, "V22": -0.035, "V23": -0.465, "V24": 0.320, "V25": 0.044,
+    "V26": 0.177, "V27": 0.261, "V28": -0.143,
+    "scaled_amount": -0.353, "scaled_time": -1.023
 }
 
-
-def test_predict_endpoint_with_fraud_data():
-
-    response = requests.post(API_URL, data=json.dumps(KNOWN_FRAUD_DATA))
-
+def test_predict_normal_transaction():
+    response = client.post("/predict", json=VALID_DATA)
     assert response.status_code == 200
-    
     response_json = response.json()
-    assert "is_fraud" in response_json
-    
+    assert response_json["is_fraud"] == 0
+
+def test_predict_fraud_transaction():
+    response = client.post("/predict", json=KNOWN_FRAUD_DATA)
+    assert response.status_code == 200
+    response_json = response.json()
     assert response_json["is_fraud"] == 1
+
+def test_predict_invalid_data():
+    invalid_data = VALID_DATA.copy()
+    del invalid_data["V10"]
+    response = client.post("/predict", json=invalid_data)
+    assert response.status_code == 422
