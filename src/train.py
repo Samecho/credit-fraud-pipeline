@@ -7,6 +7,8 @@ from sklearn.metrics import classification_report, recall_score, precision_score
 import mlflow
 import mlflow.sklearn
 from pipeline import load_and_preprocess_data, split_data, apply_smote 
+import joblib
+import os
 
 mlflow.set_tracking_uri("file:./mlruns")
 mlflow.set_experiment("credit-fraud-pipeline")
@@ -16,7 +18,7 @@ X_train, X_test, y_train, y_test = split_data(X, y)
 X_train_smote, y_train_smote = apply_smote(X_train, y_train)
 
 # 1 
-print("Running Experiment 1: RandomForest......")
+print("\nRunning Experiment 1: RandomForest......")
 with mlflow.start_run(run_name="RandomForest"):
     n_estimators = 100
     random_state = 0
@@ -46,7 +48,7 @@ with mlflow.start_run(run_name="RandomForest"):
     print(classification_report(y_test, y_pred_rf))
 
 # 2
-print("Running Experiment 2: XGBoost (Default)......")
+print("\nRunning Experiment 2: XGBoost (Default)......")
 with mlflow.start_run(run_name="XGBoost"):
     n_estimators = 100
     random_state = 0
@@ -76,10 +78,10 @@ with mlflow.start_run(run_name="XGBoost"):
     print(classification_report(y_test, y_pred_xgb))
 
 # 3
-print("Running Experiment 3: Hyperparameter Tuning for XGBoost......")
+print("\nRunning Experiment 3: Hyperparameter Tuning for XGBoost......")
 with mlflow.start_run(run_name="XGBoost_Tuned"):
     param_grid = {
-        'n_estimators': [100, 200, 300],
+        'n_estimators': [100],
         'max_depth': list(range(4, 9)),
         'learning_rate': [0.05, 0.1, 0.2],
         'subsample': [0.8, 1.0],
@@ -107,16 +109,20 @@ with mlflow.start_run(run_name="XGBoost_Tuned"):
     mlflow.log_metric("recall", recall_score(y_test, y_pred_tuned))
     mlflow.log_metric("precision", precision_score(y_test, y_pred_tuned))
     mlflow.log_metric("f1_score", f1_score(y_test, y_pred_tuned))
-    mlflow.log_metric("auc", roc_auc_score(y_test, y_pred_proba_tuned))
+    mlflow.log_metric("auc", roc_auc_score(y_test, y_pred_tuned))
 
     print("Saving model to MLflow...")
-    mlflow.sklearn.log_model(best_model, "tuned_xgboost_model")
-
-    run_id = mlflow.active_run().info.run_id
-    model_uri = f"runs:/{run_id}/tuned_xgboost_model"
-    mlflow.register_model(model_uri=model_uri, name="fraud-detector-model")
-
+    artifact_name = "tuned_xgboost_model"
+    mlflow.sklearn.log_model(best_model, artifact_name)
+    
     print("Model report of Experiment 3:")
     print(classification_report(y_test, y_pred_tuned))
 
-print("Execution complete!")
+# --- Final Step: Export the Champion Model for Production ---
+print("\nExporting the champion model for deployment...")
+output_dir = "models"
+os.makedirs(output_dir, exist_ok=True)
+joblib.dump(best_model, os.path.join(output_dir, "champion_model.pkl"))
+print(f"Champion model saved to {os.path.join(output_dir, 'champion_model.pkl')}")
+
+print("\nExecution complete!")

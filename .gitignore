@@ -6,4 +6,5 @@ models/
 data/raw/
 .ipynb_checkpoints/
 mlruns
-
+mlflow.db
+src/credit_fraud_pipeline.egg-info/

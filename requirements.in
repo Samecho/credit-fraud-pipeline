@@ -1,0 +1,27 @@
+# Core ML & Data
+pandas
+scikit-learn
+xgboost
+imbalanced-learn
+
+# Experiment Tracking
+mlflow
+
+# API & Serving
+fastapi
+pydantic
+uvicorn
+gunicorn
+
+# Testing
+pytest
+requests
+
+# Notebook & EDA
+notebook
+matplotlib
+seaborn
+
+# Utilities
+pipreqs
+joblib
