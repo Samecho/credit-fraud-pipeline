@@ -119,3 +119,10 @@ When you are finished, write in terminal:
 
    Remove the container:  
    `docker rm fraud-api-container`
+
+## Future TODOs
+
+- Add LightGBM and compare with XGBoost  
+- Deploy FastAPI API via Docker + Render  
+- Add CI/CD (GitHub Actions) and endpoint tests  
+
