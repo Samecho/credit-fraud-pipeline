@@ -16,7 +16,7 @@ class TransactionFeatures(BaseModel):
 app = FastAPI(title="Credit Fraud Detection API")
 
 try:
-    model = joblib.load("models/champion_model.pkl")
+    model = joblib.load("/app/models/champion_model.pkl")
     print("Champion model loaded successfully from champion_model.pkl!")
 except Exception as e:
     print(f"FATAL: Champion model could not be loaded. Error: {e}")
