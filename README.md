@@ -2,127 +2,211 @@
 
 ## Overview
 
-This project implements a complete, production-ready machine learning pipeline to detect fraudulent credit card transactions. The focus is not just on building an accurate model, but on establishing a robust, reproducible, and deployable MLOps workflow. The entire process, from data preprocessing and model training to API creation and containerization, is covered.
+This project implements an end-to-end machine learning pipeline for detecting fraudulent credit card transactions.
+
+The focus is not only on model performance, but on building a reproducible and production-ready workflow, including:
+
+* Data preprocessing
+* Model experimentation and tracking
+* Model selection
+* API development
+* Containerization
+* Cloud deployment (Azure)
+
+The final model is exposed as a FastAPI service and deployed in a Docker container to Microsoft Azure.
+
+---
 
 ## Tech Stack
 
+**Language**
+
 * Python 3.9+
-* Data Handling: Pandas
-* Machine Learning: Scikit-learn, XGBoost, Imbalanced-learn (for SMOTE)
-* Experiment Tracking: MLflow
-* API Framework: FastAPI with Pydantic
-* Testing: Pytest
-* Containerization: Docker
-* Production Server: Gunicorn, Uvicorn
-* Version Control: Git
 
-## Setup and Installation
+**Data & ML**
 
-1. Clone the repository:
-   `git clone https://github.com/Samecho/credit-fraud-pipeline`  
-   `cd credit-fraud-pipeline`
+* Pandas
+* Scikit-learn
+* XGBoost
+* Imbalanced-learn (SMOTE)
 
-2. Create and activate a virtual environment:  
-   For Windows:  
-   `python -m venv .venv`  
-   `.\.venv\Scripts\activate`  
+**Experiment Tracking**
 
-   For macOS/Linux
-   `python3 -m venv .venv`
-   `source .venv/bin/activate`
+* MLflow
 
-3. Install development dependencies:
-   `pip install -r requirements.txt`
+**Backend / API**
 
-## Data
+* FastAPI
+* Pydantic
 
-The project uses the "Credit Card Fraud Detection" dataset from Kaggle. Due to confidentiality, the primary features (V1-V28) are PCA-transformed.
+**Testing**
 
-* Source: https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud
-* Action: Download creditcard.csv and place it inside the data/raw/ directory.
+* Pytest
 
-# Phase 1: Training the Champion Model
+**Production & Deployment**
 
-This phase covers data processing, model experimentation, and hyperparameter tuning to produce a final, production-ready model file.
+* Docker
+* Gunicorn
+* Uvicorn
+* Microsoft Azure (Container Deployment)
 
-## How to Run the Training Pipeline
+**Version Control**
 
-The main training script executes a series of experiments and saves the best-performing model.
+* Git
 
-1. Execute the training script:
-   From the project root directory, run:
-   `python src/train.py`
+---
 
-2. What this script does:
-   * Loads and preprocesses data using functions from src/pipeline.py.
-   * Applies SMOTE to the training set to handle class imbalance.
-   * Runs three separate experiments tracked by MLflow:
-       1. A baseline RandomForestClassifier.
-       2. An out-of-the-box XGBoost model.
-       3. A final XGBoost model tuned with GridSearchCV to maximize Recall.
-   * Saves the final champion model as models/champion_model.pkl.
+## Dataset
 
-3. Review Experiment Results (Optional):
-   To view a detailed dashboard comparing all experiment runs, start the MLflow UI:
-   mlflow ui
-   Then, navigate to http://127.0.0.1:5000 in your browser.
+* Source: [https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
+* Features V1–V28 are PCA-transformed due to confidentiality.
 
-# Phase 2: Running the Application with Docker
+To reproduce locally:
 
-This phase covers building the Docker image and running the containerized FastAPI service.
+1. Download `creditcard.csv`
+2. Place it under:
 
-## Prerequisites
+```
+data/raw/creditcard.csv
+```
 
-* Docker Desktop is installed and running.
-* You have successfully run the training pipeline at least once to generate the models/champion_model.pkl file.
+---
 
-## Step 1: Build the Docker Image
+# Phase 1 – Model Training & Experimentation
 
-This command reads the Dockerfile and packages the application, the model, and all production dependencies into a self-contained image named credit-fraud-api.
+The training pipeline performs preprocessing, model experimentation, and hyperparameter tuning.
 
-`docker build -t credit-fraud-api .`
+## Run Training Pipeline
 
-## Step 2: Run the Docker Container
+From project root:
 
-This command starts the image as a running container, making the API service available.
+```
+python src/train.py
+```
 
-`docker run -p 8000:8000 --name fraud-api-container credit-fraud-api`
+### What the training pipeline does
 
-* `-p 8000:8000`: Maps port 8000 on your computer to port 8000 inside the container.
-* `--name fraud-api-container`: Assigns a convenient name to the running container.
+* Loads and preprocesses data (`src/pipeline.py`)
+* Applies SMOTE to handle class imbalance
+* Runs experiments tracked by MLflow:
 
-Your terminal will now display live logs from the Gunicorn server. Leave this terminal running.
+  * RandomForest baseline
+  * Default XGBoost
+  * Tuned XGBoost (GridSearchCV optimizing Recall)
+* Saves the final model to:
 
-## Step 3: Access and Test Your API
+```
+models/champion_model.pkl
+```
 
-Your service is now running in a fully isolated Linux container.
+## View MLflow Experiments (Optional)
 
-1. Open your web browser.
-2. Navigate to http://127.0.0.1:8000. You should see the welcome message.
-3. Navigate to http://127.0.0.1:8000/docs. This is the interactive API documentation (Swagger UI) where you can directly test the /predict endpoint.
+```
+mlflow ui
+```
 
-## Step 4: Run Automated Tests (Optional)
+Open:
 
-While the container is running, you can verify its health by running the test suite from a new terminal.
+```
+http://127.0.0.1:5000
+```
 
-1. Open a new terminal window.
-2. Activate the virtual environment: `.\.venv\Scripts\activate`
-3. Run pytest:  
-   `pytest`  
-   You should see all tests pass successfully.
+---
 
-## Step 5: Stop the Application
+# Phase 2 – API Service (FastAPI)
 
-When you are finished, write in terminal:
-   Stop the container if it's still running:  
-   `docker stop fraud-api-container`
+The trained model is served through a FastAPI application.
 
-   Remove the container:  
-   `docker rm fraud-api-container`
+### Start locally (development mode)
 
-## Future TODOs
+```
+uvicorn src.api.main:app --reload
+```
 
-- Add LightGBM and compare with XGBoost  
-- Deploy FastAPI API via Docker + Render  
-- Add CI/CD (GitHub Actions) and endpoint tests  
+Swagger documentation:
 
+```
+http://127.0.0.1:8000/docs
+```
+
+---
+
+# Phase 3 – Docker Containerization
+
+The API is containerized for reproducibility and deployment.
+
+## Build Docker Image
+
+```
+docker build -t credit-fraud-api .
+```
+
+## Run Container Locally
+
+```
+docker run -p 8000:8000 --name fraud-api-container credit-fraud-api
+```
+
+The service will be available at:
+
+```
+http://127.0.0.1:8000/docs
+```
+
+---
+
+# Phase 4 – Cloud Deployment (Azure)
+
+The Dockerized FastAPI service has been successfully deployed to Microsoft Azure as a containerized application.
+
+### Deployment Highlights
+
+* Docker image built locally
+* Image pushed to Azure Container Registry
+* Service deployed to Azure container service
+* Public endpoint exposed for inference
+* Production server: Gunicorn + Uvicorn workers
+
+This demonstrates:
+
+* Container-based deployment workflow
+* Cloud-native API serving
+* Environment portability between local and cloud
+
+---
+
+# Testing
+
+Run automated tests:
+
+```
+pytest
+```
+
+Test coverage includes:
+
+* API endpoint validation
+* Model loading verification
+* Prediction response structure
+
+---
+
+# What This Project Demonstrates
+
+* Handling extreme class imbalance with SMOTE
+* Experiment tracking with MLflow
+* Hyperparameter tuning with GridSearchCV
+* Model selection based on Recall optimization
+* Production API design using FastAPI
+* Containerized deployment with Docker
+* Cloud deployment to Azure
+* Reproducible ML workflow
+
+---
+
+# Future Improvements
+
+* Add LightGBM comparison
+* Implement CI/CD pipeline (GitHub Actions)
+* Add integration tests for containerized API
+* Add monitoring & logging for production usage
